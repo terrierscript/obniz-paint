@@ -88,8 +88,6 @@ const App = () => {
   useEffect(() => {
     const raw = bitToRaw(bitmap)
     obniz.display.raw(raw)
-
-    syncObniz(bitmap)
   }, [bitmap])
   return (
     <div>
