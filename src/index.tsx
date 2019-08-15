@@ -82,7 +82,7 @@ const App = () => {
   return (
     <div>
       <Base>
-        <Map bitmap={bitmap} toggle={toggle} />
+        <MapMemo bitmap={bitmap} toggle={toggle} />
       </Base>
     </div>
   )
