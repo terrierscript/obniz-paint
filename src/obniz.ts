@@ -1,4 +1,4 @@
-import Obniz from "obniz"
+// import Obniz from "obniz"
 
 const chunks = (input, size) => {
   return input.reduce((arr, item, idx) => {
@@ -8,21 +8,23 @@ const chunks = (input, size) => {
   }, [])
 }
 
-const bitToRaw = (bitmap) => {
+export const bitToRaw = (bitmap) => {
   const raw = bitmap
     .map((m, x) => chunks(m, 8).map((c) => parseInt(c.join(""), 2)))
     .reduce((curr, c) => [...curr, ...c], [])
   return raw
 }
 
-const obniz = new Obniz(process.env.OBNIZ_ID, {
+// @ts-ignore
+export const obniz = new Obniz(process.env.OBNIZ_ID, {
   access_token: process.env.OBNIZ_ACCESS_TOKEN
 })
 
-export const syncObniz = (bitmap) => {
-  obniz.onconnect = async function() {
-    obniz.display.clear()
-    const raw = bitToRaw(bitmap)
-    obniz.display.raw(raw)
-  }
-}
+// export const syncObniz = (bitmap) => {
+//   obniz.onconnect = async function() {
+//     obniz.display.clear()
+//     const raw = bitToRaw(bitmap)
+//     console.log(raw)
+//     obniz.display.raw(raw)
+//   }
+// }

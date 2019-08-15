@@ -1,11 +1,12 @@
-import React, { useState, useCallback } from "react"
+import React, { useState, useCallback, useEffect } from "react"
 import { render } from "react-dom"
 import produce from "immer"
 import styled from "styled-components"
+import { syncObniz, obniz, bitToRaw } from "./obniz"
 const generateInitMap = (w, h) => {
   return Array(w)
     .fill(0)
-    .map((row) => Array(h).fill(0))
+    .map((_) => Array(h).fill(0))
 }
 
 const useDrawMap = () => {
@@ -31,26 +32,32 @@ const useDrawMap = () => {
   }
 }
 
+const Cell = styled.div<{ val: Number }>`
+  width: 4px;
+  height: 4px;
+  background: ${({ val }) => (val === 1 ? "red" : "blue")};
+`
 const Item = ({ val, ...rest }) => {
-  return <div {...rest}>{val === 1 ? "○" : "●"}</div>
+  return <Cell val={val} {...rest} />
 }
+const ItemMemo = React.memo(Item)
 
 const Base = styled.div`
   display: grid;
-  grid-template-columns: repeat(128, 1fr);
-  grid-auto-columns: max-content;
-  grid-auto-rows: max-content;
-  grid-gap: 0.2em;
+  grid-template-columns: repeat(128, 4px);
+  /* grid-auto-columns: max-content;
+  grid-auto-rows: max-content; */
+  /* grid-gap: 0em; */
 `
 const Row = ({ y, xs, toggle }) => {
   return (
     <React.Fragment key={y}>
       {xs.map((v, x) => {
         return (
-          <Item
+          <ItemMemo
             val={v}
             key={`${x}_${y}`}
-            onClick={() => {
+            onMouseOver={() => {
               toggle(x, y)
             }}
           />
@@ -78,14 +85,21 @@ const Map = ({ bitmap, toggle }) => {
 const MapMemo = React.memo(Map)
 const App = () => {
   const { bitmap, toggle } = useDrawMap()
+  useEffect(() => {
+    const raw = bitToRaw(bitmap)
+    obniz.display.raw(raw)
 
+    syncObniz(bitmap)
+  }, [bitmap])
   return (
     <div>
       <Base>
-        <MapMemo bitmap={bitmap} toggle={toggle} />
+        <Map bitmap={bitmap} toggle={toggle} />
       </Base>
     </div>
   )
 }
 
-render(<App />, document.querySelector("#container"))
+obniz.onconnect = async function() {
+  render(<App />, document.querySelector("#container"))
+}
