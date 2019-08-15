@@ -40,29 +40,47 @@ const Base = styled.div`
   grid-auto-rows: max-content;
   grid-gap: 0.2em;
 `
+const Row = ({ y, xs, toggle }) => {
+  return (
+    <React.Fragment key={y}>
+      {xs.map((v, x) => {
+        return (
+          <Item
+            val={v}
+            key={`${x}_${y}`}
+            onClick={() => {
+              toggle(x, y)
+            }}
+          />
+        )
+      })}
+    </React.Fragment>
+  )
+}
+
+const RowMemo = React.memo(Row)
+
+const Map = ({ bitmap, toggle }) => {
+  return (
+    <>
+      {bitmap.map((xs, y) => {
+        return (
+          <React.Fragment key={y}>
+            <RowMemo y={y} xs={xs} toggle={toggle} />
+          </React.Fragment>
+        )
+      })}
+    </>
+  )
+}
+const MapMemo = React.memo(Map)
 const App = () => {
   const { bitmap, toggle } = useDrawMap()
 
   return (
     <div>
       <Base>
-        {bitmap.map((xs, y) => {
-          return (
-            <React.Fragment key={y}>
-              {xs.map((v, x) => {
-                return (
-                  <Item
-                    val={v}
-                    key={`${x}_${y}`}
-                    onClick={() => {
-                      toggle(x, y)
-                    }}
-                  />
-                )
-              })}
-            </React.Fragment>
-          )
-        })}
+        <Map bitmap={bitmap} toggle={toggle} />
       </Base>
     </div>
   )
