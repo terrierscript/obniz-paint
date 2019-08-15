@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useCallback } from "react"
 import { render } from "react-dom"
 import produce from "immer"
 import styled from "styled-components"
@@ -10,19 +10,21 @@ const generateInitMap = (w, h) => {
 
 const useDrawMap = () => {
   const [bitmap, setMap] = useState(generateInitMap(128, 64))
-  const toggle = (x, y) => {
-    if (bitmap[y] === undefined) {
-      return
-    }
-    if (bitmap[y][x] === undefined) {
-      return
-    }
-    const next = produce(bitmap, (draftMap) => {
-      const val = bitmap[y][x] === 1 ? 0 : 1
-      draftMap[y][x] = val
+  const toggle = useCallback((x, y) => {
+    setMap((bitmap) => {
+      if (bitmap[y] === undefined) {
+        return bitmap
+      }
+      if (bitmap[y][x] === undefined) {
+        return bitmap
+      }
+      const next = produce(bitmap, (draftMap) => {
+        const val = bitmap[y][x] === 1 ? 0 : 1
+        draftMap[y][x] = val
+      })
+      return next
     })
-    setMap(next)
-  }
+  }, [])
   return {
     bitmap,
     toggle
