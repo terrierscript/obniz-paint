@@ -25,12 +25,7 @@ export const useDrawMap = () => {
       }
     }).then((next) => {
       map.current = next
-      // console.log(next)
-      // setMap(next)
     })
-
-    // return next
-    // })
   }, [])
   const obniz = useObniz()
 
@@ -38,18 +33,12 @@ export const useDrawMap = () => {
     if (obniz === null) {
       return
     }
-    const worker = new Worker("./worker.js")
-    worker.onmessage = (e) => {
-      if (obniz) {
-        obniz.display.raw(e.data)
-      }
-    }
     // @ts-ignore
     const loop = window.requestIdleCallback || window.requestAnimationFrame
     const frame = () =>
       loop(() => {
         if (map.current) {
-          worker.postMessage(map.current)
+          obniz.display.raw(bitToRaw(map.current))
         }
         frame()
       })
