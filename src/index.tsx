@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef, useState, useContext } from "react"
 import { render } from "react-dom"
 import styled from "styled-components"
 import { bitToRaw } from "./obniz"
@@ -12,6 +12,8 @@ export const generateInitMap = (w, h) => {
     .map((_) => Array(h).fill(0))
 }
 
+const DrwaMapContext = React.createContext<any>({})
+
 const SIZE = 4
 
 const Item = styled.div<{ val: Number }>`
@@ -20,28 +22,35 @@ const Item = styled.div<{ val: Number }>`
   background: ${({ val }) => (val === 1 ? "red" : "blue")};
 `
 
-const ItemMemo = React.memo(Item)
+// const ItemMemo = React.memo(Item)
 
 const Base = styled.div`
   display: grid;
   grid-template-columns: repeat(128, ${SIZE}px);
 `
-const Row = ({ y, xs, toggle }) => {
+
+const ItemWithState = ({ x, y, ...props }) => {
+  const [v, setV] = useState(0)
+  const { toggle } = useContext(DrwaMapContext)
+  return (
+    <Item
+      {...props}
+      val={v}
+      onMouseOver={() => {
+        const n = v ? 0 : 1
+        setV(n)
+        toggle(x, y, n)
+      }}
+    />
+  )
+}
+
+const Row = ({ y, xs }) => {
   return (
     <React.Fragment key={y}>
       {xs.map((v, x) => {
         return (
-          <ItemMemo
-            val={v}
-            name={`${x}_${y}`}
-            key={`${x}_${y}`}
-            onClick={() => {
-              console.log("z", x, y)
-            }}
-            onMouseOver={() => {
-              //   toggle(x, y)
-            }}
-          />
+          <ItemWithState name={`${x}_${y}`} key={`${x}_${y}`} x={x} y={y} />
         )
       })}
     </React.Fragment>
@@ -51,13 +60,13 @@ const Row = ({ y, xs, toggle }) => {
 // const RowMemo = Row
 const RowMemo = React.memo(Row)
 
-const Map = ({ bitmap, toggle }) => {
+const Map = ({ bitmap }) => {
   return (
     <>
       {bitmap.map((xs, y) => {
         return (
           <React.Fragment key={y}>
-            <RowMemo y={y} xs={xs} toggle={toggle} />
+            <RowMemo y={y} xs={xs} />
           </React.Fragment>
         )
       })}
@@ -67,58 +76,30 @@ const Map = ({ bitmap, toggle }) => {
 // const MapMemo = React.memo(Map)
 const MapMemo = Map
 
-const BaseContainer = ({ children, toggle }) => {
-  const ref = useRef(null)
-  const { elX, elY } = useMouse(ref)
-  const [mouseDown, onMouseDown] = useState(false)
-  const [last, setLast] = useState<number[]>([])
-  // console.log("ppt", elY, elY/2, elY/4)
-  // console.log("ppt", elX, elX/2, elX/4, Math.floor(elX/4))
-  const scale = SIZE
-  useEffect(() => {
-    const pt = [Math.floor(elX / scale), Math.floor(elY / scale)]
-    if (last[0] === pt[0] && last[1] === pt[1]) {
-      return
-    }
-    setLast(pt)
-    // console.log("pt", pt)
-    // if (!mouseDown) {
-    //   return
-    // }
-
-    toggle(...pt)
-  }, [elX, elY])
-  return (
-    <Base
-      ref={ref}
-      // onMouseDown={() => onMouseDown(true)}
-      // onMouseUp={() => onMouseDown(false)}
-      // onClick={() => {
-      //   console.log("last", last)
-      //   toggle(...last)
-      // }}
-    >
-      {children}
-    </Base>
-  )
-}
-
-const App = () => {
-  const { bitmap, toggle } = useDrawMap()
+const Obnizer = ({}) => {
+  const { bin } = useContext(DrwaMapContext)
   const obniz = useObniz()
   useEffect(() => {
-    if (obniz === null) {
+    console.log(obniz, bin)
+    if (obniz === null || bin === null) {
       return
     }
-    const raw = bitToRaw(bitmap)
-    obniz.display.raw(raw)
-  }, [bitmap, obniz])
+    obniz.display.raw(bin)
+  }, [bin, obniz])
+  return null
+}
+const App = () => {
+  const drwaMap = useDrawMap()
+  const initMap = generateInitMap(64, 128)
   return (
-    <div>
-      <BaseContainer toggle={toggle}>
-        <MapMemo bitmap={bitmap} toggle={toggle} />
-      </BaseContainer>
-    </div>
+    <DrwaMapContext.Provider value={drwaMap}>
+      <Obnizer />
+      <div>
+        <Base>
+          <MapMemo bitmap={initMap} />
+        </Base>
+      </div>
+    </DrwaMapContext.Provider>
   )
 }
 
