@@ -15,8 +15,8 @@ export const generateInitMap = (w, h) => {
 const SIZE = 4
 
 const Item = styled.div<{ val: Number }>`
-  width: 4px;
-  height: 4px;
+  width: ${SIZE}px;
+  height: ${SIZE}px;
   background: ${({ val }) => (val === 1 ? "red" : "blue")};
 `
 
@@ -24,15 +24,12 @@ const ItemMemo = React.memo(Item)
 
 const Base = styled.div`
   display: grid;
-  grid-template-columns: repeat(128, 4px);
+  grid-template-columns: repeat(128, ${SIZE}px);
 `
 const Row = ({ y, xs, toggle }) => {
   return (
     <React.Fragment key={y}>
       {xs.map((v, x) => {
-        if (v) {
-          console.log("zz", x, y)
-        }
         return (
           <ItemMemo
             val={v}
@@ -77,9 +74,8 @@ const BaseContainer = ({ children, toggle }) => {
   // console.log("ppt", elX, elX/2, elX/4, Math.floor(elX/4))
   const scale = SIZE
   useEffect(() => {
-    // console.log(elX, elY)
     const pt = [Math.floor(elX / scale), Math.floor(elY / scale)]
-    if (last.join("-") === pt.join("-")) {
+    if (last[0] === pt[0] && last[1] === pt[1]) {
       return
     }
     setLast(pt)
@@ -88,17 +84,17 @@ const BaseContainer = ({ children, toggle }) => {
     //   return
     // }
 
-    // toggle(...pt)
+    toggle(...pt)
   }, [elX, elY])
   return (
     <Base
       ref={ref}
       // onMouseDown={() => onMouseDown(true)}
       // onMouseUp={() => onMouseDown(false)}
-      onClick={() => {
-        console.log("last", last)
-        toggle(...last)
-      }}
+      // onClick={() => {
+      //   console.log("last", last)
+      //   toggle(...last)
+      // }}
     >
       {children}
     </Base>

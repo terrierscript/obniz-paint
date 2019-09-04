@@ -2,7 +2,7 @@ import { useState, useCallback } from "react"
 import produce from "immer"
 import { generateInitMap } from "./index"
 export const useDrawMap = () => {
-  const [bitmap, setMap] = useState(generateInitMap(128, 64))
+  const [bitmap, setMap] = useState(generateInitMap(64, 128))
   // console.log(bitmap.length)
   // console.log(bitmap[0].length)
   const toggle = useCallback((x, y) => {
@@ -15,7 +15,6 @@ export const useDrawMap = () => {
       }
       const next = produce(bitmap, (draftMap) => {
         const val = bitmap[y][x] === 1 ? 0 : 1
-        console.log(y, x)
         draftMap[y][x] = val
       })
 
