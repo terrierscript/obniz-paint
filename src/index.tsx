@@ -1,10 +1,10 @@
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { render } from "react-dom"
 import styled from "styled-components"
 import { bitToRaw } from "./obniz"
 import { useMouse } from "react-use"
-import { useDrawMap } from "./useDrawMap";
-import { useObniz } from "./useObniz";
+import { useDrawMap } from "./useDrawMap"
+import { useObniz } from "./useObniz"
 
 export const generateInitMap = (w, h) => {
   return Array(w)
@@ -12,11 +12,11 @@ export const generateInitMap = (w, h) => {
     .map((_) => Array(h).fill(0))
 }
 
-const SIZE=4;
+const SIZE = 4
 
-const Item = styled.div<{ val: Number , size: Number}>`
-  width: ${SIZE}px;
-  height: ${SIZE}px;
+const Item = styled.div<{ val: Number }>`
+  width: 4px;
+  height: 4px;
   background: ${({ val }) => (val === 1 ? "red" : "blue")};
 `
 
@@ -30,13 +30,20 @@ const Row = ({ y, xs, toggle }) => {
   return (
     <React.Fragment key={y}>
       {xs.map((v, x) => {
+        if (v) {
+          console.log("zz", x, y)
+        }
         return (
           <ItemMemo
             val={v}
+            name={`${x}_${y}`}
             key={`${x}_${y}`}
-            // onMouseOver={() => {
-            //   toggle(x, y)
-            // }}
+            onClick={() => {
+              console.log("z", x, y)
+            }}
+            onMouseOver={() => {
+              //   toggle(x, y)
+            }}
           />
         )
       })}
@@ -63,17 +70,39 @@ const MapMemo = React.memo(Map)
 
 const BaseContainer = ({ children, toggle }) => {
   const ref = useRef(null)
-  const {elX, elY} = useMouse(ref)
-  console.log(elX)
-  useEffect( () => {
-    const pt = [
-      Math.floor(elX/2), 
-      Math.floor(elY/2),
-    ]
-    // console.log(pt)
-    toggle(...pt)
+  const { elX, elY } = useMouse(ref)
+  const [mouseDown, onMouseDown] = useState(false)
+  const [last, setLast] = useState<number[]>([])
+  // console.log("ppt", elY, elY/2, elY/4)
+  // console.log("ppt", elX, elX/2, elX/4, Math.floor(elX/4))
+  const scale = SIZE
+  useEffect(() => {
+    // console.log(elX, elY)
+    const pt = [Math.floor(elX / scale), Math.floor(elY / scale)]
+    if (last.join("-") === pt.join("-")) {
+      return
+    }
+    setLast(pt)
+    // console.log("pt", pt)
+    // if (!mouseDown) {
+    //   return
+    // }
+
+    // toggle(...pt)
   }, [elX, elY])
-  return <Base ref={ref}>{children}</Base>
+  return (
+    <Base
+      ref={ref}
+      // onMouseDown={() => onMouseDown(true)}
+      // onMouseUp={() => onMouseDown(false)}
+      onClick={() => {
+        console.log("last", last)
+        toggle(...last)
+      }}
+    >
+      {children}
+    </Base>
+  )
 }
 
 const App = () => {
