@@ -48,6 +48,7 @@ const Row = ({ y, xs, toggle }) => {
   )
 }
 
+// const RowMemo = Row
 const RowMemo = React.memo(Row)
 
 const Map = ({ bitmap, toggle }) => {
@@ -63,7 +64,8 @@ const Map = ({ bitmap, toggle }) => {
     </>
   )
 }
-const MapMemo = React.memo(Map)
+// const MapMemo = React.memo(Map)
+const MapMemo = Map
 
 const BaseContainer = ({ children, toggle }) => {
   const ref = useRef(null)
