@@ -5,11 +5,7 @@ import { bitToRaw } from "./obniz"
 import { useObniz } from "./useObniz"
 export const useDrawMap = () => {
   const map = useRef(generateInitMap(64, 128))
-  // const [bitmap, setMap] = useState(null)
-
-  const [bin, setBin] = useState(null)
-  // console.log(bitmap.length)
-  // console.log(bitmap[0].length)
+  const [ready, setReady] = useState(false)
 
   const toggle = useCallback((x, y, v = undefined) => {
     const bitmap = map.current
@@ -44,22 +40,27 @@ export const useDrawMap = () => {
     }
     const worker = new Worker("./worker.js")
     worker.onmessage = (e) => {
-      // console.log("onm", obniz)
       if (obniz) {
         obniz.display.raw(e.data)
       }
     }
-    const timer = () =>
-      requestAnimationFrame(() => {
+    // @ts-ignore
+    const loop = window.requestIdleCallback || window.requestAnimationFrame
+    const frame = () =>
+      loop(() => {
         if (map.current) {
           worker.postMessage(map.current)
         }
+        frame()
       })
-    timer()
+    frame()
+    setReady(true)
   }, [obniz])
 
   return {
-    bin,
+    // bin,
+    ready,
     toggle
+    // setReady
   }
 }

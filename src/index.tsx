@@ -91,6 +91,9 @@ const Obnizer = ({}) => {
 const App = () => {
   const drwaMap = useDrawMap()
   const initMap = generateInitMap(64, 128)
+  if (!drwaMap.ready) {
+    return <div>loading...</div>
+  }
   return (
     <DrwaMapContext.Provider value={drwaMap}>
       <Obnizer />
