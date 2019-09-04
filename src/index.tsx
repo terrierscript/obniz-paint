@@ -1,41 +1,22 @@
-import React, { useState, useCallback, useEffect } from "react"
+import React, { useEffect, useRef } from "react"
 import { render } from "react-dom"
-import produce from "immer"
 import styled from "styled-components"
-import { obniz, bitToRaw } from "./obniz"
+import { bitToRaw } from "./obniz"
+import { useMouse } from "react-use"
+import { useDrawMap } from "./useDrawMap";
+import { useObniz } from "./useObniz";
 
-const generateInitMap = (w, h) => {
+export const generateInitMap = (w, h) => {
   return Array(w)
     .fill(0)
     .map((_) => Array(h).fill(0))
 }
 
-const useDrawMap = () => {
-  const [bitmap, setMap] = useState(generateInitMap(128, 64))
-  const toggle = useCallback((x, y) => {
-    setMap((bitmap) => {
-      if (bitmap[y] === undefined) {
-        return bitmap
-      }
-      if (bitmap[y][x] === undefined) {
-        return bitmap
-      }
-      const next = produce(bitmap, (draftMap) => {
-        const val = bitmap[y][x] === 1 ? 0 : 1
-        draftMap[y][x] = val
-      })
-      return next
-    })
-  }, [])
-  return {
-    bitmap,
-    toggle
-  }
-}
+const SIZE=4;
 
-const Item = styled.div<{ val: Number }>`
-  width: 4px;
-  height: 4px;
+const Item = styled.div<{ val: Number , size: Number}>`
+  width: ${SIZE}px;
+  height: ${SIZE}px;
   background: ${({ val }) => (val === 1 ? "red" : "blue")};
 `
 
@@ -53,9 +34,9 @@ const Row = ({ y, xs, toggle }) => {
           <ItemMemo
             val={v}
             key={`${x}_${y}`}
-            onMouseOver={() => {
-              toggle(x, y)
-            }}
+            // onMouseOver={() => {
+            //   toggle(x, y)
+            // }}
           />
         )
       })}
@@ -79,21 +60,39 @@ const Map = ({ bitmap, toggle }) => {
   )
 }
 const MapMemo = React.memo(Map)
+
+const BaseContainer = ({ children, toggle }) => {
+  const ref = useRef(null)
+  const {elX, elY} = useMouse(ref)
+  console.log(elX)
+  useEffect( () => {
+    const pt = [
+      Math.floor(elX/2), 
+      Math.floor(elY/2),
+    ]
+    // console.log(pt)
+    toggle(...pt)
+  }, [elX, elY])
+  return <Base ref={ref}>{children}</Base>
+}
+
 const App = () => {
   const { bitmap, toggle } = useDrawMap()
+  const obniz = useObniz()
   useEffect(() => {
+    if (obniz === null) {
+      return
+    }
     const raw = bitToRaw(bitmap)
     obniz.display.raw(raw)
-  }, [bitmap])
+  }, [bitmap, obniz])
   return (
     <div>
-      <Base>
+      <BaseContainer toggle={toggle}>
         <MapMemo bitmap={bitmap} toggle={toggle} />
-      </Base>
+      </BaseContainer>
     </div>
   )
 }
 
-obniz.onconnect = async function() {
-  render(<App />, document.querySelector("#container"))
-}
+render(<App />, document.querySelector("#container"))

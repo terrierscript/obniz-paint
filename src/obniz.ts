@@ -16,9 +16,11 @@ export const bitToRaw = (bitmap) => {
 }
 
 // @ts-ignore
-export const obniz = new Obniz(process.env.OBNIZ_ID, {
-  access_token: process.env.OBNIZ_ACCESS_TOKEN
-})
+export const createObnizClient = () => {
+  return new Obniz(process.env.OBNIZ_ID, {
+    access_token: process.env.OBNIZ_ACCESS_TOKEN
+  })
+}
 
 // export const syncObniz = (bitmap) => {
 //   obniz.onconnect = async function() {

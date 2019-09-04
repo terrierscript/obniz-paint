@@ -6,14 +6,16 @@
   "author": "terrierscript <13282103+terrierscript@users.noreply.github.com>",
   "license": "MIT",
   "dependencies": {
+    "@rooks/use-mouse": "^3.2.4",
     "@types/node": "^12.7.2",
     "@types/react": "^16.8.24",
     "@types/react-dom": "^16.8.5",
     "immer": "^3.2.0",
     "obniz": "^2.2.0",
     "parcel": "^1.12.3",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0",
+    "react-use": "^12.2.0",
     "styled-components": "^4.3.2",
     "typescript": "^3.5.3"
   },
