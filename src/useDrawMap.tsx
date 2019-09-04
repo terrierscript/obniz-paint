@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react"
 import produce from "immer"
 import { generateInitMap } from "./index"
 import { bitToRaw } from "./obniz"
+import { useObniz } from "./useObniz"
 export const useDrawMap = () => {
   const map = useRef(generateInitMap(64, 128))
   // const [bitmap, setMap] = useState(null)
@@ -35,20 +36,30 @@ export const useDrawMap = () => {
     // return next
     // })
   }, [])
-  // useEffect(() => {
-  //   const timer = () =>
-  //     setTimeout(() => {
-  //       if (map.current) {
-  //         setBin(bitToRaw(map.current))
-  //       }
-  //       // setMap(map.current)
-  //       timer()
-  //     }, 1000)
-  //   timer()
-  // }, [])
+  const obniz = useObniz()
+
+  useEffect(() => {
+    if (obniz === null) {
+      return
+    }
+    const worker = new Worker("./worker.js")
+    worker.onmessage = (e) => {
+      // console.log("onm", obniz)
+      if (obniz) {
+        obniz.display.raw(e.data)
+      }
+    }
+    const timer = () =>
+      requestAnimationFrame(() => {
+        if (map.current) {
+          worker.postMessage(map.current)
+        }
+      })
+    timer()
+  }, [obniz])
+
   return {
     bin,
-    // bitmap,
     toggle
   }
 }

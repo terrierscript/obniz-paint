@@ -10,5 +10,6 @@ export const useObniz = () => {
       }
     })
   }, [])
+
   return _obniz
 }

@@ -77,15 +77,15 @@ const Map = ({ bitmap }) => {
 const MapMemo = Map
 
 const Obnizer = ({}) => {
-  const { bin } = useContext(DrwaMapContext)
-  const obniz = useObniz()
-  useEffect(() => {
-    console.log(obniz, bin)
-    if (obniz === null || bin === null) {
-      return
-    }
-    obniz.display.raw(bin)
-  }, [bin, obniz])
+  // const { bin } = useContext(DrwaMapContext)
+  // const obniz = useObniz()
+  // useEffect(() => {
+  //   console.log(obniz, bin)
+  //   if (obniz === null || bin === null) {
+  //     return
+  //   }
+  //   obniz.display.raw(bin)
+  // }, [bin, obniz])
   return null
 }
 const App = () => {
