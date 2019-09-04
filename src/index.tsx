@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState, useContext } from "react"
+import React, { useRef, useState, useContext } from "react"
 import { render } from "react-dom"
 import styled from "styled-components"
-import { bitToRaw } from "./obniz"
 import { useMouse } from "react-use"
 import { useDrawMap } from "./useDrawMap"
-import { useObniz } from "./useObniz"
+import { Obnizer } from "./Obnizer"
 
 export const generateInitMap = (w, h) => {
   return Array(w)
@@ -12,17 +11,15 @@ export const generateInitMap = (w, h) => {
     .map((_) => Array(h).fill(0))
 }
 
-const DrwaMapContext = React.createContext<any>({})
+export const DrwaMapContext = React.createContext<any>({})
 
-const SIZE = 4
+const SIZE = 8
 
 const Item = styled.div<{ val: Number }>`
   width: ${SIZE}px;
   height: ${SIZE}px;
   background: ${({ val }) => (val === 1 ? "red" : "blue")};
 `
-
-// const ItemMemo = React.memo(Item)
 
 const Base = styled.div`
   display: grid;
@@ -73,33 +70,7 @@ const Map = ({ bitmap }) => {
     </>
   )
 }
-// const MapMemo = React.memo(Map)
-const MapMemo = Map
 
-const Obnizer = ({ children }) => {
-  const { mapRef } = useContext(DrwaMapContext)
-  const [ready, setReady] = useState(false)
-
-  const obniz = useObniz()
-  useEffect(() => {
-    if (obniz === null) {
-      return
-    }
-    // @ts-ignore
-    const loop = window.requestIdleCallback || window.requestAnimationFrame
-    const frame = () =>
-      loop(() => {
-        obniz.display.raw(bitToRaw(mapRef.current))
-        frame()
-      })
-    frame()
-    setReady(true)
-  }, [obniz])
-  if (!ready) {
-    return <div>loading...</div>
-  }
-  return children
-}
 const App = () => {
   const drwaMap = useDrawMap()
   const initMap = generateInitMap(64, 128)
@@ -108,7 +79,7 @@ const App = () => {
       <Obnizer>
         <div>
           <Base>
-            <MapMemo bitmap={initMap} />
+            <Map bitmap={initMap} />
           </Base>
         </div>
       </Obnizer>
