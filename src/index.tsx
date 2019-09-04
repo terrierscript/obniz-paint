@@ -76,32 +76,42 @@ const Map = ({ bitmap }) => {
 // const MapMemo = React.memo(Map)
 const MapMemo = Map
 
-const Obnizer = ({}) => {
-  // const { bin } = useContext(DrwaMapContext)
-  // const obniz = useObniz()
-  // useEffect(() => {
-  //   console.log(obniz, bin)
-  //   if (obniz === null || bin === null) {
-  //     return
-  //   }
-  //   obniz.display.raw(bin)
-  // }, [bin, obniz])
-  return null
+const Obnizer = ({ children }) => {
+  const { mapRef } = useContext(DrwaMapContext)
+  const [ready, setReady] = useState(false)
+
+  const obniz = useObniz()
+  useEffect(() => {
+    if (obniz === null) {
+      return
+    }
+    // @ts-ignore
+    const loop = window.requestIdleCallback || window.requestAnimationFrame
+    const frame = () =>
+      loop(() => {
+        obniz.display.raw(bitToRaw(mapRef.current))
+        frame()
+      })
+    frame()
+    setReady(true)
+  }, [obniz])
+  if (!ready) {
+    return <div>loading...</div>
+  }
+  return children
 }
 const App = () => {
   const drwaMap = useDrawMap()
   const initMap = generateInitMap(64, 128)
-  if (!drwaMap.ready) {
-    return <div>loading...</div>
-  }
   return (
     <DrwaMapContext.Provider value={drwaMap}>
-      <Obnizer />
-      <div>
-        <Base>
-          <MapMemo bitmap={initMap} />
-        </Base>
-      </div>
+      <Obnizer>
+        <div>
+          <Base>
+            <MapMemo bitmap={initMap} />
+          </Base>
+        </div>
+      </Obnizer>
     </DrwaMapContext.Provider>
   )
 }
