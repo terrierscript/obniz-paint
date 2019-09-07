@@ -20,7 +20,7 @@ fn array_to_vec(arr: Array) -> Vec<u8> {
         .collect()
 }
 
-fn arr_to_dim(arr: Array) -> Vec<u8> {
+fn bin_to_raw(arr: Array) -> Vec<u8> {
     return arr
         .values()
         .into_iter()
@@ -36,7 +36,7 @@ fn log(message: String) {
 
 #[wasm_bindgen]
 pub fn main(v: Array) -> Vec<u8> {
-    let varr = arr_to_dim(v);
+    let varr = bin_to_raw(v);
     return varr;
 }
 
