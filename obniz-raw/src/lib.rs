@@ -1,49 +1,45 @@
 use js_sys::Array;
 use wasm_bindgen::prelude::*;
+use std::borrow::Borrow;
+
+fn wrap(x: Result<JsValue,JsValue>) -> Option<u8>{
+    return match x.ok() {
+        Some(xx) => match xx.as_f64() {
+            Some(xxx) => Some(xxx as u8),
+            None => None,
+        },
+        None => None
+    };
+}
 fn jsv_to_vec(v: Array) -> Vec<u8> {
+    let vv : Vec<u8> = v
+        .values()
+        .into_iter()
+        .map(|x| match wrap(x) {
+            Some(xx) => xx,
+            None => panic!("")
+        })
+        .collect();
+    return vv
+}
+
+fn arr_to_dim(v: Array) -> Vec<u8> {   
     return v
         .values()
         .into_iter()
-        .map(|x| {
-            return match x.ok() {
-                Some(xx) => match xx.as_f64() {
-                    Some(xxx) => xxx as u8,
-                    None => panic!(""),
-                },
-                None => panic!(""),
-            };
+        .map(|x| match x.ok() {
+            Some(xx) => {
+                
+                let a = jsv_to_vec(xx.into());
+                return a.chunks(8)
+                    .map(|b|  chunk_to_bin(b ));
+            }
+            None => panic!(""),
         })
+        .flatten()
         .collect();
 }
 
-fn jsvalue_to_arr(jsvalue: JsValue) -> Array {
-    return jsvalue.into();
-}
-
-fn arr_to_vec(xx: JsValue) -> Vec<u8> {
-    let arr = jsvalue_to_arr(xx);
-    return jsv_to_vec(arr);
-}
-fn arr_to_dim(v: Array) -> Vec<Vec<u8>> {
-    return v
-        .values()
-        .into_iter()
-        .map(|x| {
-            return match x.ok() {
-                Some(xx) => arr_to_vec(xx),
-                None => panic!(""),
-            };
-        })
-        .collect();
-}
-
-#[wasm_bindgen]
-pub fn main(v: Array) -> Vec<u8> {
-    // web_sys::console::log_1(;
-    let varr = arr_to_dim(v);
-    let result = arr_to_bin(varr);
-    return result;
-}
 
 fn log(message: String) {
     web_sys::console::log_1(&format!("[koreha rust dayo~~] {}", message).into());
@@ -52,12 +48,15 @@ fn log(message: String) {
 fn arr_to_bin(varr: Vec<Vec<u8>>) -> Vec<u8> {
     return varr
         .iter()
-        .map(|bits| {
-            // log(format!("koreha rust dayo--{:?} {:?}", bits.len(), bits));
-            bits.chunks(8).map(|b| chunk_to_bin(b))
-        })
+        .map(|bits| bits.chunks(8).map(|b| chunk_to_bin(b)))
         .flatten()
         .collect();
+}
+
+
+fn chunk_to_bin_opt(slice: Vec<Option<u8>>) -> u8 {
+    let z : Vec<u8> = slice.iter().map(|c| c.unwrap()).collect();
+    return chunk_to_bin(z.as_slice());
 }
 
 fn chunk_to_bin(slice: &[u8]) -> u8 {
@@ -66,6 +65,14 @@ fn chunk_to_bin(slice: &[u8]) -> u8 {
         .rev()
         .enumerate()
         .fold(0, |acc, (i, &b)| acc + (b * 2u8.pow(i as u32)))
+}
+
+#[wasm_bindgen]
+pub fn main(v: Array) -> Vec<u8> {
+    // web_sys::console::log_1(;
+    let varr = arr_to_dim(v);
+    // let result = arr_to_bin(varr);
+    return varr;
 }
 
 #[test]
