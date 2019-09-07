@@ -1,39 +1,31 @@
 use js_sys::Array;
 use wasm_bindgen::prelude::*;
 
-fn wrap(x: Result<JsValue, JsValue>) -> Option<u8> {
-    return x.ok()?.as_f64().and_then(|u| Some(u as u8));
+fn jsvalue_to_u8(x: Result<JsValue, JsValue>) -> Option<u8> {
+    x.ok()?.as_f64().and_then(|u| Some(u as u8))
 }
 
 fn byte_to_u8(slice: &[u8]) -> u8 {
-    slice
-        .into_iter()
-        // .rev()
-        // .enumerate()
-        // .fold(0, |acc, (i, b)| acc + (b * 2u8.pow(i as u32)))
-        .fold(0, |acc, &b| (acc << 1) + b as u8)
+    slice.into_iter().fold(0, |acc, &b| (acc << 1) + b as u8)
 }
 
-fn jsv_to_chunkbin(arr: Array) -> Vec<u8> {
-    let v: Vec<_> = arr
-        .values()
+fn vec_to_u8(vec: Vec<u8>) -> Vec<u8> {
+    vec.chunks(8).map(|b| byte_to_u8(b)).collect()
+}
+
+fn array_to_vec(arr: Array) -> Vec<u8> {
+    arr.values()
         .into_iter()
-        .map(|x| match wrap(x) {
-            Some(xx) => xx,
-            None => panic!(""),
-        })
-        .collect();
-    return v.chunks(8).map(|b| byte_to_u8(b)).collect::<Vec<u8>>();
+        .map(|x| jsvalue_to_u8(x).unwrap())
+        .collect()
 }
 
 fn arr_to_dim(arr: Array) -> Vec<u8> {
     return arr
         .values()
         .into_iter()
-        .map(|item| match item.ok() {
-            Some(value) => jsv_to_chunkbin(value.into()),
-            None => panic!(""),
-        })
+        .map(|row| array_to_vec(row.unwrap().into()))
+        .map(|vec| vec_to_u8(vec))
         .flatten()
         .collect();
 }
