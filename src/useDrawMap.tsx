@@ -23,13 +23,13 @@ export const useDrawMap = () => {
         draftMap[y][x] = v
       }
     }).then((next) => {
-      console.time("js")
-      const b = bitToRaw(mapRef.current)
-      console.timeEnd("js")
-      console.time("wasm")
+      // console.time("js")
+      // const b = bitToRaw(mapRef.current)
+      // console.timeEnd("js")
+      // console.time("wasm")
       const a = binToRawWasm(mapRef.current)
-      console.timeEnd("wasm")
-      console.log(a[0], b[0])
+      // console.timeEnd("wasm")
+      // console.log(a[0], b[0])
       mapRef.current = next
     })
   }, [])
