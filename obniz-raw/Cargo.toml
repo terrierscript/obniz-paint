@@ -1,0 +1,24 @@
+[package]
+name = "obniz-raw"
+version = "0.1.0"
+authors = ["terrierscript <13282103+terrierscript@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+serde_json = "1.0.32"
+serde_derive = "1.0.80"
+serde = "1.0.80"
+js-sys = "0.3.27"
+bitvec = "0.15.1"
+
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies.web-sys]
+features = [
+  "console",
+]

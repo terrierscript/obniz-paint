@@ -4,11 +4,17 @@ import styled from "styled-components"
 import { useMouse } from "react-use"
 import { useDrawMap } from "./useDrawMap"
 import { Obnizer } from "./Obnizer"
+import { doTest } from "./test"
 
 export const generateInitMap = (w, h) => {
   return Array(w)
-    .fill(0)
-    .map((_) => Array(h).fill(0))
+    .fill(false)
+    .map((_) => Array(h).fill(false))
+}
+export const generateInitMapUint = (w, h) => {
+  return Array(w)
+    .fill(false)
+    .map((_) => new Uint8Array(h))
 }
 
 export const DrwaMapContext = React.createContext<any>({})
@@ -88,3 +94,5 @@ const App = () => {
 }
 
 render(<App />, document.querySelector("#container"))
+
+doTest()

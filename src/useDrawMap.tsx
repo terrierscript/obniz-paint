@@ -1,10 +1,10 @@
 import { useState, useCallback, useEffect, useRef } from "react"
 import produce from "immer"
-import { generateInitMap } from "./index"
-import { bitToRaw } from "./obniz"
+import { generateInitMap, generateInitMapUint } from "./index"
+import { bitToRaw, binToRawWasm } from "./obniz"
 import { useObniz } from "./useObniz"
 export const useDrawMap = () => {
-  const mapRef = useRef(generateInitMap(64, 128))
+  const mapRef = useRef(generateInitMapUint(64, 128))
 
   const toggle = useCallback((x, y, v = undefined) => {
     const bitmap = mapRef.current
@@ -23,6 +23,13 @@ export const useDrawMap = () => {
         draftMap[y][x] = v
       }
     }).then((next) => {
+      console.time("js")
+      const b = bitToRaw(mapRef.current)
+      console.timeEnd("js")
+      console.time("wasm")
+      const a = binToRawWasm(mapRef.current)
+      console.timeEnd("wasm")
+      console.log(a[0], b[0])
       mapRef.current = next
     })
   }, [])
