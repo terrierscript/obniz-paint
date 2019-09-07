@@ -12,17 +12,14 @@ export const binToRawWasm = (bitmap) => {
   const r = module.main(bitmap)
   return r
 }
-const binToDec = (c) => {
-  return c.reverse().reduce((acc, curr, i) => {
-    return acc + curr * 2 ** i
-  }, 0)
-}
+
 export const bitToRaw = (bitmap) => {
   const raw = bitmap
     .map((m, x) =>
-      chunks(m, 8).map(
-        (c) => binToDec(c)
-        // parseInt(c.join(""), 2))
+      chunks(m, 8).map((c) =>
+        c.reverse().reduce((acc, curr, i) => {
+          return acc + curr * 2 ** i
+        }, 0)
       )
     )
     .reduce((curr, c) => [...curr, ...c], [])

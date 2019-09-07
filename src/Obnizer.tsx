@@ -3,7 +3,7 @@ import { bitToRaw } from "./obniz"
 import { useObniz } from "./useObniz"
 import { DrwaMapContext } from "./index"
 export const Obnizer = ({ children }) => {
-  return children
+  // return children
   const { mapRef } = useContext(DrwaMapContext)
   const [ready, setReady] = useState(false)
   const obniz = useObniz()

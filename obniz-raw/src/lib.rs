@@ -8,9 +8,10 @@ fn wrap(x: Result<JsValue, JsValue>) -> Option<u8> {
 fn byte_to_u8(slice: &[u8]) -> u8 {
     slice
         .into_iter()
-        .rev()
-        .enumerate()
-        .fold(0, |acc, (i, b)| acc + (b * 2u8.pow(i as u32)))
+        // .rev()
+        // .enumerate()
+        // .fold(0, |acc, (i, b)| acc + (b * 2u8.pow(i as u32)))
+        .fold(0, |acc, &b| (acc << 1) + b as u8)
 }
 
 fn jsv_to_chunkbin(arr: Array) -> Vec<u8> {
