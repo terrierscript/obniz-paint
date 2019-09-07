@@ -1,45 +1,44 @@
 use js_sys::Array;
-use wasm_bindgen::prelude::*;
 use std::borrow::Borrow;
+use wasm_bindgen::prelude::*;
 
-fn wrap(x: Result<JsValue,JsValue>) -> Option<u8>{
+fn wrap(x: Result<JsValue, JsValue>) -> Option<u8> {
     return match x.ok() {
         Some(xx) => match xx.as_f64() {
             Some(xxx) => Some(xxx as u8),
             None => None,
         },
-        None => None
+        None => None,
     };
 }
 fn jsv_to_vec(v: Array) -> Vec<u8> {
-    let vv : Vec<u8> = v
+    let vv: Vec<u8> = v
         .values()
         .into_iter()
         .map(|x| match wrap(x) {
             Some(xx) => xx,
-            None => panic!("")
+            None => panic!(""),
         })
         .collect();
-    return vv
+    return vv;
 }
 
-fn arr_to_dim(v: Array) -> Vec<u8> {   
+fn arr_to_dim(v: Array) -> Vec<u8> {
     return v
         .values()
         .into_iter()
         .map(|x| match x.ok() {
             Some(xx) => {
-                
-                let a = jsv_to_vec(xx.into());
-                return a.chunks(8)
-                    .map(|b|  chunk_to_bin(b ));
+                return jsv_to_vec(xx.into())
+                    .chunks(8)
+                    .map(|b| chunk_to_bin(b))
+                    .collect::<Vec<u8>>();
             }
             None => panic!(""),
         })
         .flatten()
         .collect();
 }
-
 
 fn log(message: String) {
     web_sys::console::log_1(&format!("[koreha rust dayo~~] {}", message).into());
@@ -53,9 +52,8 @@ fn arr_to_bin(varr: Vec<Vec<u8>>) -> Vec<u8> {
         .collect();
 }
 
-
 fn chunk_to_bin_opt(slice: Vec<Option<u8>>) -> u8 {
-    let z : Vec<u8> = slice.iter().map(|c| c.unwrap()).collect();
+    let z: Vec<u8> = slice.iter().map(|c| c.unwrap()).collect();
     return chunk_to_bin(z.as_slice());
 }
 
